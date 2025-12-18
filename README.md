@@ -1,2 +1,2 @@
 # NetSim
-Projekt symulacji sieci w C.
+Projekt symulacji sieci w C++.
