@@ -1,7 +1,8 @@
-#include <iostream>
-
 enum class PackageQueueType {
     FIFO,
     LIFO
 };
 
+class IPackageStockpile {
+
+};
