@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Programowanie\NetSim\build\_deps\googletest-subbuild\CMakeFiles\afa0a2dc6b4f290dd74f10df69e71fac\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{72E42F0A-49BF-3E5E-AB08-BD9B3B947F6B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

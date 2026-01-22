@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Programowanie\NetSim\build\CMakeFiles\bf68efc1e0e30f9d8c498370e5c2faeb\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{10EB485A-287F-3814-961E-F5FE482423A0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
