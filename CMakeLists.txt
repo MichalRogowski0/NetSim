@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(src)
 add_subdirectory(googletest-master/googletest-1.17.0)
-
+add_subdirectory(tests)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
