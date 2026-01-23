@@ -35,3 +35,28 @@ IPackageReceiver* ReciverPreferences::choose_reciver(){
         }
     }
 }
+
+ void PackageSender::send_package(){
+    if(!buffor_){
+        return;
+    }
+    IPackageReceiver* reciever = receiver_preferences_.choose_reciver();
+   
+    if(reciever){
+        reciever ->receive_package(std::move(buffor_.value()));
+    }
+    buffor_ = std::nullopt;
+
+ }
+
+ void PackageSender::push_package(Package&& p){
+    buffor_ = std::move(p);
+ }
+
+ void Ramp::deliver_goods(Time t){
+
+    if(id_ % (t - 1) == 0){
+        Package p;
+        push_package(std::move(p));
+    }
+ }

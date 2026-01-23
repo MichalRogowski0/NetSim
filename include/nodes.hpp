@@ -9,12 +9,14 @@
 
 #include "types.hpp"
 #include "helpers.hpp"
+#include "package.hpp"
 
 class IPackageReceiver{
     
     public:
         virtual void receive_package(Package&& p) = 0;
         virtual ElementID get_id() const = 0;
+
         virtual IPackageStockpile::const_iterator begin() const = 0;
         virtual IPackageStockpile::const_iterator end() const = 0;
         virtual IPackageStockpile::const_iterator cbegin() const = 0;
@@ -50,14 +52,16 @@ class ReciverPreferences{
 class PackageSender{
 
     public:
-        PackageSender(PackageSender&&) = default;
+        PackageSender() = default;
+        PackageSender(PackageSender&& p) = default;
         void send_package();
-        std::optional<Package>& get_sending_buffer() const;
-        ReciverPreferences reciever_preferences_;
+        const std::optional<Package>& get_sending_buffer() const { return buffor_; }
+        ReciverPreferences receiver_preferences_;
 
 
     protected:
         void push_package(Package&& p);
+        std::optional<Package> buffor_ = std::nullopt;
 };
 
 class Ramp : public PackageSender{
