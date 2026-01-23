@@ -73,7 +73,7 @@ class Ramp : public PackageSender{
         TimeOffset di_;
 };
  
-class Worker : public PackageSender, IPackageReceiver{
+class Worker : public PackageSender, public IPackageReceiver{
 
     public:
         Worker(ElementID id, TimeOffset pd, std::unique_ptr<IPackageQueue> q) : 
