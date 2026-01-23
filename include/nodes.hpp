@@ -13,8 +13,14 @@
 class IPackageReceiver{
     
     public:
-        void recieve_package(Package&& p);
-        ElementID get_id() const;
+        virtual void receive_package(Package&& p) = 0;
+        virtual ElementID get_id() const = 0;
+        virtual IPackageStockpile::const_iterator begin() const = 0;
+        virtual IPackageStockpile::const_iterator end() const = 0;
+        virtual IPackageStockpile::const_iterator cbegin() const = 0;
+        virtual IPackageStockpile::const_iterator cend() const = 0;
+
+        virtual ~IPackageReceiver() = default;
 };
 
 class ReciverPreferences{
@@ -27,7 +33,13 @@ class ReciverPreferences{
         void add_reciver(IPackageReceiver* r);
         void remove_reciver(IPackageReceiver* r);
         IPackageReceiver* choose_reciver();
-        preferences_t& get_preferences() const;
+
+        const_iterator begin() const { return preferences_.begin(); }
+        const_iterator end() const { return preferences_.end(); }
+        const_iterator cbegin() const { return preferences_.cbegin(); }
+        const_iterator cend() const { return preferences_.cend(); }
+
+        const preferences_t& get_preferences() const { return preferences_; }
     
     private:
         preferences_t preferences_;
@@ -38,15 +50,14 @@ class ReciverPreferences{
 class PackageSender{
 
     public:
+        PackageSender(PackageSender&&) = default;
         void send_package();
         std::optional<Package>& get_sending_buffer() const;
+        ReciverPreferences reciever_preferences_;
+
 
     protected:
         void push_package(Package&& p);
-
-    private:
-        ReciverPreferences reciever_preferences_;
-
 };
 
 class Ramp : public PackageSender{
