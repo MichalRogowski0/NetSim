@@ -55,7 +55,7 @@ class PackageSender{
         PackageSender() = default;
         PackageSender(PackageSender&& p) = default;
         void send_package();
-        const std::optional<Package>& get_sending_buffer() const { return buffor_; }
+        const std::optional<Package>& get_sending_buffor() const { return buffor_; }
         ReciverPreferences receiver_preferences_;
 
 
@@ -69,8 +69,8 @@ class Ramp : public PackageSender{
     public:
         Ramp(ElementID id, TimeOffset di) : id_(id), di_(di) {}
         void deliver_goods(Time t);
-        TimeOffset get_delivery_interval() const;
-        ElementID get_id() const;
+        TimeOffset get_delivery_interval() const { return di_; }
+        ElementID get_id() const { return id_; }
     
     private:
         ElementID id_;
@@ -83,20 +83,23 @@ class Worker : public PackageSender, public IPackageReceiver{
         Worker(ElementID id, TimeOffset pd, std::unique_ptr<IPackageQueue> q) : 
         id_(id), pd_(pd), q_(std::move(q)) {}
         void do_work(Time t);
-        TimeOffset get_processing_duration() const;
-        Time get_package_processing_start_time() const;
-
+        TimeOffset get_processing_duration() const { return pd_; }
+        Time get_package_processing_start_time() const { return startTime_; }
+        
+ 
     private:
+        Time startTime_ = 0;
         ElementID id_;
         TimeOffset pd_;
         std::unique_ptr<IPackageQueue> q_;
+        std::optional<Package>  processing_buffor_ = std::nullopt;
 
 };
 
 class Storehouse : public IPackageReceiver{
     
     public:
-        Storehouse(ElementID id, std::unique_ptr<IPackStockpile> d) : id_(id), d_(d) {}
+        Storehouse(ElementID id, std::unique_ptr<IPackStockpile> d) : id_(id), d_(std::move(d)) {}
 
     private:
         ElementID id_;

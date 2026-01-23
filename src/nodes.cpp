@@ -60,3 +60,17 @@ IPackageReceiver* ReciverPreferences::choose_reciver(){
         push_package(std::move(p));
     }
  }
+
+ void Worker::do_work(Time t){
+    if(!processing_buffor_.has_value() &&  !q_->empty()){
+        processing_buffor_ = q_ -> pop();
+        startTime_ = t;
+    }
+    if (processing_buffor_.has_value()){
+        if ( t >= startTime_ + pd_ - 1){
+            push_package(std::move(processing_buffor_.value()));
+            processing_buffor_.reset();
+            startTime_ = 0;
+        }
+    }
+ }
