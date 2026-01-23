@@ -16,7 +16,7 @@ class ReciverPreferencess{
         using preferences_t = std::map<IPackageReciver*, double>;
         using const_iterator = preferences_t::const_iterator;
 
-        ReciverPreferencess(PropabilityGenerator pg = probability_generator){} 
+        ReciverPreferencess(PropabilityGenerator pg = probability_generator) : pg_(std::map(pg)) {}
         void add_reciver(IPackageReciver*);
         void remove_reciver(IPackageReciver*);
         IPackageReciever* choose_reciver();
