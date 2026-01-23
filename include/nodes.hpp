@@ -10,7 +10,6 @@
 #include "types.hpp"
 #include "helpers.hpp"
 
-
 class IPackageReceiver{
     
     public:
@@ -63,7 +62,7 @@ class Ramp : public PackageSender{
         TimeOffset di_;
 };
  
-class Worker : public PackageSender{
+class Worker : public PackageSender, IPackageReceiver{
 
     public:
         Worker(ElementID id, TimeOffset pd, std::unique_ptr<IPackageQueue> q) : 
@@ -77,4 +76,14 @@ class Worker : public PackageSender{
         TimeOffset pd_;
         std::unique_ptr<IPackageQueue> q_;
 
+};
+
+class Storehouse : public IPackageReceiver{
+    
+    public:
+        Storehouse(ElementID id, std::unique_ptr<IPackStockpile> d) : id_(id), d_(d) {}
+
+    private:
+        ElementID id_;
+        std::unique_ptr<IPackStockpile> d_;
 };

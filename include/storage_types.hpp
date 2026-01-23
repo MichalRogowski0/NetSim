@@ -4,5 +4,5 @@ enum class PackageQueueType {
 };
 
 class IPackageStockpile {
-
+    
 };
