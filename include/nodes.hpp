@@ -56,7 +56,7 @@ class PackageSender{
         PackageSender() = default;
         PackageSender(PackageSender&& p) = default;
         void send_package();
-        const std::optional<Package>& get_sending_bufor() const { return bufor_; }
+        const std::optional<Package>& get_sending_buffer() const { return bufor_; }
         ReceiverPreferences receiver_preferences_;
 
 
