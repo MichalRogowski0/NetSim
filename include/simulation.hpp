@@ -19,11 +19,11 @@ private:
 
 class IntervalReportNotifier {
 public:
-    explicit IntervalReportNotifier(TimeOffset interval);
+    explicit IntervalReportNotifier(TimeOffset to);
     bool should_generate_report(Time t) const;
 
 private:
-    TimeOffset interval_;
+    TimeOffset to_;
 };
 
 #endif //SIMULATION_HPP
