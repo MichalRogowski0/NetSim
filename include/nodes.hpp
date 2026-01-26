@@ -10,6 +10,7 @@
 #include "types.hpp"
 #include "helpers.hpp"
 #include "package.hpp"
+#include "storage_types.hpp"
 
 class IPackageReceiver{
     
