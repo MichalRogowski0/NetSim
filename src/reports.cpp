@@ -10,7 +10,7 @@ void generate_structure_report(const Factory& f, std::ostream& os){
         os << "Rampa " << it -> get_id() << " interval " << it -> get_delivery_interval();
 
         const auto& pref = it -> receiver_preferences_.get_preferences();
-        os << "Receivers: "; 
+        os << "Receivers: ";
 
         if (pref.empty()) {
             os << "empty" << std::endl;
@@ -46,7 +46,7 @@ void generate_structure_report(const Factory& f, std::ostream& os){
 void generate_simulation_turn_report(const Factory& f, std::ostream& os, Time t) {
 
     os << "Turn: " << t << std::endl;
-    
+
     os << "Workers state:" << std::endl;
     for (auto it = f.worker_cbegin(); it != f.worker_cend(); ++it) {
         os << "Worker " << it->get_id() << ":" << std::endl;

@@ -12,6 +12,8 @@
 #include "package.hpp"
 #include "storage_types.hpp"
 
+enum ReceiverType {REC_WORKER, REC_STOREHOUSE};
+
 class IPackageReceiver{
     
     public:
@@ -23,8 +25,11 @@ class IPackageReceiver{
         virtual IPackageStockpile::const_iterator cbegin() const = 0;
         virtual IPackageStockpile::const_iterator cend() const = 0;
 
-        virtual ~IPackageReceiver() = default;
+        virtual ReceiverType get_receiver_type() const = 0;
+
+        // virtual ~IPackageReceiver() = default;
 };
+
 
 class ReceiverPreferences{
 
@@ -53,8 +58,8 @@ class ReceiverPreferences{
 class PackageSender{
 
     public:
-        PackageSender() = default;
-        PackageSender(PackageSender&& p) = default;
+        // PackageSender() = default;
+        // PackageSender(PackageSender&& p) = default;
         void send_package();
         const std::optional<Package>& get_sending_buffer() const { return buffer_; }
         ReceiverPreferences receiver_preferences_;
@@ -96,13 +101,15 @@ class Worker : public PackageSender, public IPackageReceiver{
         IPackageStockpile::const_iterator cbegin() const override { return q_ -> cbegin(); }
         IPackageStockpile::const_iterator cend() const override { return q_ -> cend(); }
 
+        ReceiverType get_receiver_type() const override { return REC_WORKER; }
+        PackageQueueType get_queue_type() const { return q_->get_queue_type(); }
+
     private:
         Time startTime_ = 0;
         ElementID id_;
         TimeOffset pd_;
         std::unique_ptr<IPackageQueue> q_;
         std::optional<Package>  processing_buffer_ = std::nullopt;
-
 };
 
 class Storehouse : public IPackageReceiver{
@@ -120,8 +127,10 @@ class Storehouse : public IPackageReceiver{
         IPackageStockpile::const_iterator cbegin() const override { return d_ -> cbegin(); }
         IPackageStockpile::const_iterator cend() const override { return d_ -> cend(); }
 
-        ~Storehouse() override = default;
-        Storehouse(Storehouse&&) = default;
+        ReceiverType get_receiver_type() const override { return REC_STOREHOUSE; }
+
+        // ~Storehouse() override = default;
+        // Storehouse(Storehouse&&) = default;
 
     private:
         ElementID id_;
