@@ -1,7 +1,8 @@
+#pragma once
+
 #include <vector>
-#include <algorithm>
-#include <stdexcept>
 #include "nodes.hpp"
+
 
 
 template<typename Node>
@@ -10,12 +11,16 @@ public:
     using container_t = std::vector<Node>;
     using iterator = typename container_t::iterator;
     using const_iterator = typename container_t::const_iterator;
+
     iterator begin() { return container_.begin(); }
     iterator end() { return container_.end(); }
+
     const_iterator begin() const { return container_.begin(); }
     const_iterator end() const { return container_.end(); }
+
     const_iterator cbegin() const { return container_.cbegin(); }
     const_iterator cend() const { return container_.cend(); }
+
     NodeCollection(): container_() {};
 
     void add(Node &&node);
@@ -40,9 +45,9 @@ public:
 
     NodeCollection<Ramp>::const_iterator find_ramp_by_id(ElementID id) const;
 
-    NodeCollection<Ramp>::const_iterator ramp_cbegin();
+    NodeCollection<Ramp>::const_iterator ramp_cbegin() const;
 
-    NodeCollection<Ramp>::const_iterator ramp_cend();
+    NodeCollection<Ramp>::const_iterator ramp_cend() const;
 
     void add_worker(Worker &&);
 
@@ -52,9 +57,9 @@ public:
 
     NodeCollection<Worker>::const_iterator find_worker_by_id(ElementID id) const;
 
-    NodeCollection<Worker>::const_iterator worker_cbegin();
+    NodeCollection<Worker>::const_iterator worker_cbegin() const;
 
-    NodeCollection<Worker>::const_iterator worker_cend();
+    NodeCollection<Worker>::const_iterator worker_cend() const;
 
     void add_storehouse(Storehouse &&);
 
@@ -75,6 +80,8 @@ public:
     void do_package_passing(void);
 
     void do_work(Time);
+
+    bool has_reachable_storehouse(const PackageSender* sender, std::set<const PackageSender*>& visited) const;
 
 private:
     template<typename Node>
