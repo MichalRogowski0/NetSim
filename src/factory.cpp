@@ -116,19 +116,81 @@ NodeCollection<Storehouse>::const_iterator Factory::storehouse_cend() const {
     return storehouse_collection_.cend();
 }
 
-bool Factory::is_consistent(void) const {
+bool Factory::is_consistent() const {
+    for (const auto& ramp : ramp_collection_) {
+
+        std::set<const PackageSender*> visited;
+
+        if (!has_reachable_storehouse(&ramp, visited)) {
+            throw std::logic_error(
+                "Sieć niespójna: z rampy ID=" + std::to_string(ramp.get_id()) +
+                " nie ma ścieżki prowadzącej do magazynu."
+            );
+        }
+    }
+
+    return true;
 }
 
-void Factory::do_deliveries(Time) {
+
+void Factory::do_deliveries(Time time) {
+    for (auto& ramp: ramp_collection_){
+        ramp.deliver_goods(time);
+    }
 }
 
 void Factory::do_package_passing(void) {
+    for (auto& ramp: ramp_collection_){
+        ramp.send_package();
+    }
+
+    for (auto& worker: worker_collection_){
+        worker.send_package();
+    }
 }
 
-void Factory::do_work(Time) {
+void Factory::do_work(Time time) {
+    for (auto& worker: worker_collection_){
+        worker.do_work(time);
+    }
 }
 
 
 template<typename Node>
 void Factory::remove_receiver(NodeCollection<Node> &collection, ElementID id) {
 }
+
+bool Factory::has_reachable_storehouse(const PackageSender* sender,
+                                       std::set<const PackageSender*>& visited) const {
+    if (sender->receiver_preferences_.get_preferences().empty()) {
+        throw std::logic_error("Nadawca nie posiada żadnego połączenia wyjściowego.");
+    }
+
+    visited.insert(sender);
+
+    for (const auto& [receiver, prob] : sender->receiver_preferences_.get_preferences()) {
+
+        if (receiver->get_receiver_type() == ReceiverType::STOREHOUSE) {
+            return true;
+        }
+
+        if (receiver->get_receiver_type() == ReceiverType::WORKER) {
+            const Worker* w = dynamic_cast<const Worker*>(receiver);
+            if (w == sender) {
+                continue;
+            }
+
+            if (visited.find(w) != visited.end()) {
+                continue;
+            }
+
+            if (has_reachable_storehouse(w, visited)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+
