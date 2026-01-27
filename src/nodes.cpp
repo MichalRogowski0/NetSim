@@ -1,6 +1,6 @@
 #include "nodes.hpp"
 
-void ReceiverPreferences::add_Receiver(IPackageReceiver* r){
+void ReceiverPreferences::add_receiver(IPackageReceiver* r){
     preferences_[r] = 0.0;
     double eq_propability = 1.0/preferences_.size();
 
@@ -9,7 +9,7 @@ void ReceiverPreferences::add_Receiver(IPackageReceiver* r){
     }
 }
 
-void ReceiverPreferences::remove_Receiver(IPackageReceiver* r){
+void ReceiverPreferences::remove_receiver(IPackageReceiver* r){
     preferences_.erase(r);
 
     if (preferences_.empty()){
@@ -23,7 +23,7 @@ void ReceiverPreferences::remove_Receiver(IPackageReceiver* r){
     }
 }
 
-IPackageReceiver* ReceiverPreferences::choose_Receiver(){
+IPackageReceiver* ReceiverPreferences::choose_receiver(){
     double p= pg_();
     double sum = 0.0;
 
@@ -41,7 +41,7 @@ IPackageReceiver* ReceiverPreferences::choose_Receiver(){
     if(!buffer_){
         return;
     }
-    IPackageReceiver* reciever = receiver_preferences_.choose_Receiver();
+    IPackageReceiver* reciever = receiver_preferences_.choose_receiver();
    
     if(reciever){
         reciever ->receive_package(std::move(buffer_.value()));
