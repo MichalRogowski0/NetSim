@@ -38,19 +38,19 @@ IPackageReceiver* ReceiverPreferences::choose_Receiver(){
 }
 
  void PackageSender::send_package(){
-    if(!bufor_){
+    if(!buffer_){
         return;
     }
     IPackageReceiver* reciever = receiver_preferences_.choose_Receiver();
    
     if(reciever){
-        reciever ->receive_package(std::move(bufor_.value()));
-        bufor_ = std::nullopt;
+        reciever ->receive_package(std::move(buffer_.value()));
+        buffer_ = std::nullopt;
     }
  }
 
  void PackageSender::push_package(Package&& p){
-    bufor_ = std::move(p);
+    buffer_ = std::move(p);
  }
 
  void Ramp::deliver_goods(Time t){
@@ -62,14 +62,14 @@ IPackageReceiver* ReceiverPreferences::choose_Receiver(){
  }
 
  void Worker::do_work(Time t){
-    if(!processing_bufor_.has_value() &&  !q_->empty()){
-        processing_bufor_ = q_ -> pop();
+    if(!processing_buffer_.has_value() &&  !q_->empty()){
+        processing_buffer_ = q_ -> pop();
         startTime_ = t;
     }
-    if (processing_bufor_.has_value()){
+    if (processing_buffer_.has_value()){
         if ( t >= startTime_ + pd_ - 1){
-            push_package(std::move(processing_bufor_.value()));
-            processing_bufor_.reset();
+            push_package(std::move(processing_buffer_.value()));
+            processing_buffer_.reset();
             startTime_ = 0;
         }
     }

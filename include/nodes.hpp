@@ -56,13 +56,13 @@ class PackageSender{
         PackageSender() = default;
         PackageSender(PackageSender&& p) = default;
         void send_package();
-        const std::optional<Package>& get_sending_buffer() const { return bufor_; }
+        const std::optional<Package>& get_sending_buffer() const { return buffer_; }
         ReceiverPreferences receiver_preferences_;
 
 
     protected:
         void push_package(Package&& p);
-        std::optional<Package> bufor_ = std::nullopt;
+        std::optional<Package> buffer_ = std::nullopt;
 };
 
 class Ramp : public PackageSender{
@@ -86,6 +86,7 @@ class Worker : public PackageSender, public IPackageReceiver{
         void do_work(Time t);
         TimeOffset get_processing_duration() const { return pd_; }
         Time get_package_processing_start_time() const { return startTime_; }
+        const std::optional<Package>& get_processing_buffer() const { return processing_buffer_; }
 
         void receive_package(Package&& p) override { q_ -> push(std::move(p)); }
         ElementID get_id() const override { return id_; }
@@ -100,7 +101,7 @@ class Worker : public PackageSender, public IPackageReceiver{
         ElementID id_;
         TimeOffset pd_;
         std::unique_ptr<IPackageQueue> q_;
-        std::optional<Package>  processing_bufor_ = std::nullopt;
+        std::optional<Package>  processing_buffer_ = std::nullopt;
 
 };
 
