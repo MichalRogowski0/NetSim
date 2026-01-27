@@ -33,9 +33,9 @@ class ReceiverPreferences{
         using const_iterator = preferences_t::const_iterator;
 
         ReceiverPreferences(ProbabilityGenerator pg = probability_generator) : pg_(std::move(pg)) {}
-        void add_Receiver(IPackageReceiver* r);
-        void remove_Receiver(IPackageReceiver* r);
-        IPackageReceiver* choose_Receiver();
+        void add_receiver(IPackageReceiver* r);
+        void remove_receiver(IPackageReceiver* r);
+        IPackageReceiver* choose_receiver();
 
         const_iterator begin() const { return preferences_.begin(); }
         const_iterator end() const { return preferences_.end(); }
@@ -108,7 +108,9 @@ class Worker : public PackageSender, public IPackageReceiver{
 class Storehouse : public IPackageReceiver{
     
     public:
-        Storehouse(ElementID id, std::unique_ptr<IPackageStockpile> d) : id_(id), d_(std::move(d)) {}
+        Storehouse(ElementID id, std::unique_ptr<IPackageStockpile> d = std::make_unique<PackageQueue>(PackageQueueType::FIFO)) 
+        : id_(id), d_(std::move(d)) {}
+
 
         void receive_package(Package&& p) override { d_ -> push(std::move(p)); }
         ElementID get_id() const override { return id_; }
