@@ -407,13 +407,3 @@ bool Factory::has_reachable_storehouse(const PackageSender *sender, std::set<con
     }
     return false;
 }
-
-
-int main() {
-    std::ifstream is("test.txt");
-    std::ofstream os("output.txt");
-    Factory factory = load_factory_structure(is);
-    save_factory_structure(factory, os);
-    os.close();
-    return 0;
-}
