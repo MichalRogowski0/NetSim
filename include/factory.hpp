@@ -4,7 +4,6 @@
 #include "nodes.hpp"
 
 
-
 template<typename Node>
 class NodeCollection {
 public:
@@ -21,7 +20,8 @@ public:
     const_iterator cbegin() const { return container_.cbegin(); }
     const_iterator cend() const { return container_.cend(); }
 
-    NodeCollection(): container_() {};
+    NodeCollection(): container_() {
+    };
 
     void add(Node &&node);
 
@@ -30,13 +30,13 @@ public:
     iterator find_by_id(ElementID id);
 
     const_iterator find_by_id(ElementID id) const;
+
 private:
-    container_t container_ ;
+    container_t container_;
 };
 
 class Factory {
 public:
-    Factory(): ramp_collection_(), worker_collection_(), storehouse_collection_() {};
     void add_ramp(Ramp &&);
 
     void remove_ramp(ElementID id);
@@ -81,13 +81,17 @@ public:
 
     void do_work(Time);
 
-    bool has_reachable_storehouse(const PackageSender* sender, std::set<const PackageSender*>& visited) const;
+    bool has_reachable_storehouse(const PackageSender *sender, std::set<const PackageSender *> &visited) const;
 
 private:
     template<typename Node>
     void remove_receiver(NodeCollection<Node> &collection, ElementID id);
+
     NodeCollection<Ramp> ramp_collection_;
     NodeCollection<Worker> worker_collection_;
     NodeCollection<Storehouse> storehouse_collection_;
-
 };
+
+Factory load_factory_structure(std::istream&);
+
+void save_factory_structure(const Factory& factory, std::ostream& os);

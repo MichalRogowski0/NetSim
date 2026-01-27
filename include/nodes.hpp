@@ -102,6 +102,7 @@ class Worker : public PackageSender, public IPackageReceiver{
         IPackageStockpile::const_iterator cend() const override { return q_ -> cend(); }
 
         ReceiverType get_receiver_type() const override { return REC_WORKER; }
+        PackageQueueType get_queue_type() const { return q_->get_queue_type(); }
 
     private:
         Time startTime_ = 0;
@@ -109,7 +110,6 @@ class Worker : public PackageSender, public IPackageReceiver{
         TimeOffset pd_;
         std::unique_ptr<IPackageQueue> q_;
         std::optional<Package>  processing_buffer_ = std::nullopt;
-
 };
 
 class Storehouse : public IPackageReceiver{
