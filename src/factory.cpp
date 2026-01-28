@@ -150,19 +150,6 @@ NodeCollection<Storehouse>::const_iterator Factory::storehouse_cend() const {
     return storehouse_collection_.cend();
 }
 
-// bool Factory::is_consistent() const {
-//     for (const auto &ramp : ramp_collection_) {
-//         std::set<const PackageSender*> visited;
-//         if (!has_reachable_storehouse(&ramp, visited)) {
-//             return false; // critical for MissingLink2 test
-//         }
-//     }
-//     return true;
-// }
-
-
-
-
 void Factory::do_deliveries(Time time) {
     for (auto &ramp: ramp_collection_) {
         ramp.deliver_goods(time);
@@ -402,40 +389,6 @@ void save_factory_structure(const Factory &factory, std::ostream &os) {
         }
     }
 }
-
-
-// bool Factory::has_reachable_storehouse(const PackageSender *sender, std::set<const PackageSender *> &visited) const {
-//     if (!sender) return false;
-
-//     // If already visited, avoid cycles
-//     if (visited.find(sender) != visited.end()) return false;
-//     visited.insert(sender);
-
-//     const auto &prefs = sender->receiver_preferences_.get_preferences();
-
-//     // If no receivers, cannot reach storehouse
-//     if (prefs.empty()) return false;
-
-//     // Check all receivers
-//     for (const auto &[receiver, prob] : prefs) {
-//         if (!receiver) continue;
-
-//         if (receiver->get_receiver_type() == ReceiverType::REC_STOREHOUSE) {
-//             return true; // found a reachable storehouse
-//         }
-//         else if (receiver->get_receiver_type() == ReceiverType::REC_WORKER) {
-//             const Worker *w = dynamic_cast<const Worker *>(receiver);
-//             if (!w) continue; // safety check
-//             if (has_reachable_storehouse(w, visited)) {
-//                 return true; // path through worker leads to storehouse
-//             }
-//         }
-//     }
-
-//     // No paths lead to storehouse
-//     return false;
-// }
-
 
 
 
