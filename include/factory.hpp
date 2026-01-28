@@ -2,7 +2,7 @@
 
 #include <vector>
 #include "nodes.hpp"
-
+enum class NodeColor { UNVISITED, VISITED, VERIFIED };
 
 template<typename Node>
 class NodeCollection {
@@ -80,8 +80,10 @@ public:
     void do_package_passing(void);
 
     void do_work(Time);
+    bool has_reachable_storehouse(const PackageSender *sender, std::map<const PackageSender*, NodeColor> &node_colors) const;
 
-    bool has_reachable_storehouse(const PackageSender *sender, std::set<const PackageSender *> &visited) const;
+
+
 
 private:
     template<typename Node>
@@ -95,3 +97,27 @@ private:
 Factory load_factory_structure(std::istream&);
 
 void save_factory_structure(const Factory& factory, std::ostream& os);
+
+
+template<class Node>
+void Factory::remove_receiver(NodeCollection<Node>& collection, ElementID id) {
+    // Find the node to remove
+    auto iter = collection.find_by_id(id);
+    if (iter == collection.end()) return;  // node not found
+
+    IPackageReceiver* receiver_ptr = dynamic_cast<IPackageReceiver*>(&(*iter));
+    if (!receiver_ptr) return;  // safety check
+
+    // Remove receiver from all ramps
+    for (auto& ramp : ramp_collection_) {
+        ramp.receiver_preferences_.remove_receiver(receiver_ptr);
+    }
+
+    // Remove receiver from all workers
+    for (auto& worker : worker_collection_) {
+        worker.receiver_preferences_.remove_receiver(receiver_ptr);
+    }
+
+    // Finally remove from the collection itself
+    collection.remove_by_id(id);
+}
