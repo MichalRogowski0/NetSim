@@ -102,6 +102,7 @@ class Worker : public PackageSender, public IPackageReceiver{
         IPackageStockpile::const_iterator cend() const override { return q_ -> cend(); }
 
         ReceiverType get_receiver_type() const override { return REC_WORKER; }
+        const IPackageQueue* get_queue() const { return q_.get(); }
         PackageQueueType get_queue_type() const { return q_->get_queue_type(); }
 
     private:
@@ -128,6 +129,7 @@ class Storehouse : public IPackageReceiver{
         IPackageStockpile::const_iterator cend() const override { return d_ -> cend(); }
 
         ReceiverType get_receiver_type() const override { return REC_STOREHOUSE; }
+        IPackageStockpile* get_queue() const { return d_.get(); }
 
         // ~Storehouse() override = default;
         // Storehouse(Storehouse&&) = default;

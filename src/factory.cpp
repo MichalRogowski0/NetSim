@@ -122,15 +122,13 @@ NodeCollection<Storehouse>::const_iterator Factory::storehouse_cend() const {
 }
 
 bool Factory::is_consistent() const {
-    for (const auto &ramp: ramp_collection_) {
-        std::set<const PackageSender *> visited;
+    std::map<const PackageSender*, NodeColor> node_colors;
 
-        if (!has_reachable_storehouse(&ramp, visited)) {
-            throw std::logic_error(
-                "Sieć niespójna: z rampy ID=" + std::to_string(ramp.get_id()) +
-                " nie ma ścieżki prowadzącej do magazynu."
-            );
-        }
+    for (const auto& ramp : ramp_collection_) node_colors[&ramp] = NodeColor::UNVISITED;
+    for (const auto& worker : worker_collection_) node_colors[&worker] = NodeColor::UNVISITED;
+
+    for (const auto& ramp : ramp_collection_) {
+        if (!has_reachable_storehouse(&ramp, node_colors)) return false;
     }
 
     return true;
@@ -248,10 +246,10 @@ void parse_link(Factory &factory, std::string src, std::string dest) {
 
     switch (src_type) {
         case RAMP:
-            factory.find_ramp_by_id(src_id)->receiver_preferences_.add_Receiver(receiver);
+            factory.find_ramp_by_id(src_id)->receiver_preferences_.add_receiver(receiver);
             break;
         case WORKER:
-            factory.find_worker_by_id(src_id)->receiver_preferences_.add_Receiver(receiver);
+            factory.find_worker_by_id(src_id)->receiver_preferences_.add_receiver(receiver);
             break;
         default:
             throw;
@@ -322,7 +320,7 @@ void save_factory_structure(const Factory &factory, std::ostream &os) {
     for (auto w = factory.worker_cbegin(); w != factory.worker_cend(); ++w) {
         std::string queue_type;
 
-        switch (w->get_queue_type()) {
+        switch (((w->get_queue()->get_queue_type()))) {
             case (PackageQueueType::FIFO):
                 queue_type = std::string("FIFO");
                 break;
@@ -378,32 +376,29 @@ void save_factory_structure(const Factory &factory, std::ostream &os) {
 }
 
 
-bool Factory::has_reachable_storehouse(const PackageSender *sender, std::set<const PackageSender *> &visited) const {
-    if (sender->receiver_preferences_.get_preferences().empty()) {
-        throw std::logic_error("Nadawca nie posiada żadnego połączenia wyjściowego.");
-    }
+bool Factory::has_reachable_storehouse(const PackageSender* sender,
+                                       std::map<const PackageSender*, NodeColor>& node_colors) const {
+    if (node_colors[sender] == NodeColor::VERIFIED) return true;
+    if (node_colors[sender] == NodeColor::VISITED) return false; // cycle
 
-    visited.insert(sender);
+    const auto& prefs = sender->receiver_preferences_.get_preferences();
+    if (prefs.empty()) return false; // missing link → inconsistent
 
-    for (const auto &[receiver, prob]: sender->receiver_preferences_.get_preferences()) {
+    node_colors[sender] = NodeColor::VISITED;
+
+    for (const auto& [receiver, _] : prefs) {
         if (receiver->get_receiver_type() == ReceiverType::REC_STOREHOUSE) {
+            node_colors[sender] = NodeColor::VERIFIED;
             return true;
-        }
+        } else if (receiver->get_receiver_type() == ReceiverType::REC_WORKER) {
+            const Worker* w = dynamic_cast<const Worker*>(receiver);
+            const PackageSender* sendrecv_ptr = dynamic_cast<const PackageSender*>(w);
+            if (!sendrecv_ptr) continue;
 
-        if (receiver->get_receiver_type() == ReceiverType::REC_WORKER) {
-            const Worker *w = dynamic_cast<const Worker *>(receiver);
-            if (w == sender) {
-                continue;
-            }
-
-            if (visited.find(w) != visited.end()) {
-                continue;
-            }
-
-            if (has_reachable_storehouse(w, visited)) {
+            if (has_reachable_storehouse(sendrecv_ptr, node_colors)) {
+                node_colors[sender] = NodeColor::VERIFIED;
                 return true;
             }
         }
     }
-    return false;
 }
