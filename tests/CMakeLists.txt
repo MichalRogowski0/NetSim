@@ -2,6 +2,7 @@ set(TESTS
         factory_tests.cpp
         nodes_tests.cpp
         package_tests.cpp
+        simulation_tests.cpp
 )
 
 add_executable(${PROJECT_NAME}_tests ${TESTS})
