@@ -248,10 +248,10 @@ void parse_link(Factory &factory, std::string src, std::string dest) {
 
     switch (src_type) {
         case RAMP:
-            factory.find_ramp_by_id(src_id)->receiver_preferences_.add_Receiver(receiver);
+            factory.find_ramp_by_id(src_id)->receiver_preferences_.add_receiver(receiver);
             break;
         case WORKER:
-            factory.find_worker_by_id(src_id)->receiver_preferences_.add_Receiver(receiver);
+            factory.find_worker_by_id(src_id)->receiver_preferences_.add_receiver(receiver);
             break;
         default:
             throw;
