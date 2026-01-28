@@ -15,7 +15,7 @@
 enum ReceiverType {REC_WORKER, REC_STOREHOUSE};
 
 class IPackageReceiver{
-    
+
     public:
         virtual void receive_package(Package&& p) = 0;
         virtual ElementID get_id() const = 0;
@@ -48,7 +48,7 @@ class ReceiverPreferences{
         const_iterator cend() const { return preferences_.cend(); }
 
         const preferences_t& get_preferences() const { return preferences_; }
-    
+
     private:
         preferences_t preferences_;
         ProbabilityGenerator pg_;
@@ -77,16 +77,16 @@ class Ramp : public PackageSender{
         void deliver_goods(Time t);
         TimeOffset get_delivery_interval() const { return di_; }
         ElementID get_id() const { return id_; }
-    
+
     private:
         ElementID id_;
         TimeOffset di_;
 };
- 
+
 class Worker : public PackageSender, public IPackageReceiver{
 
     public:
-        Worker(ElementID id, TimeOffset pd, std::unique_ptr<IPackageQueue> q) : 
+        Worker(ElementID id, TimeOffset pd, std::unique_ptr<IPackageQueue> q) :
         id_(id), pd_(pd), q_(std::move(q)) {}
         void do_work(Time t);
         TimeOffset get_processing_duration() const { return pd_; }
@@ -114,9 +114,9 @@ class Worker : public PackageSender, public IPackageReceiver{
 };
 
 class Storehouse : public IPackageReceiver{
-    
+
     public:
-        Storehouse(ElementID id, std::unique_ptr<IPackageStockpile> d = std::make_unique<PackageQueue>(PackageQueueType::FIFO)) 
+        Storehouse(ElementID id, std::unique_ptr<IPackageStockpile> d = std::make_unique<PackageQueue>(PackageQueueType::FIFO))
         : id_(id), d_(std::move(d)) {}
 
 
@@ -130,7 +130,6 @@ class Storehouse : public IPackageReceiver{
 
         ReceiverType get_receiver_type() const override { return REC_STOREHOUSE; }
         IPackageStockpile* get_queue() const { return d_.get(); }
-
         // ~Storehouse() override = default;
         // Storehouse(Storehouse&&) = default;
 
