@@ -1,13 +1,13 @@
 #pragma once
 
-#include <vector>
+#include <list>
 #include "nodes.hpp"
 enum class NodeColor { UNVISITED, VISITED, VERIFIED };
 
 template<typename Node>
 class NodeCollection {
 public:
-    using container_t = std::vector<Node>;
+    using container_t = std::list<Node>;
     using iterator = typename container_t::iterator;
     using const_iterator = typename container_t::const_iterator;
 
@@ -101,23 +101,23 @@ void save_factory_structure(const Factory& factory, std::ostream& os);
 
 template<class Node>
 void Factory::remove_receiver(NodeCollection<Node>& collection, ElementID id) {
-    // Find the node to remove
+
     auto iter = collection.find_by_id(id);
-    if (iter == collection.end()) return;  // node not found
+    if (iter == collection.end()) return; 
 
     IPackageReceiver* receiver_ptr = dynamic_cast<IPackageReceiver*>(&(*iter));
-    if (!receiver_ptr) return;  // safety check
+    if (!receiver_ptr) return; 
 
-    // Remove receiver from all ramps
+    
     for (auto& ramp : ramp_collection_) {
         ramp.receiver_preferences_.remove_receiver(receiver_ptr);
     }
 
-    // Remove receiver from all workers
+    
     for (auto& worker : worker_collection_) {
         worker.receiver_preferences_.remove_receiver(receiver_ptr);
     }
 
-    // Finally remove from the collection itself
+    
     collection.remove_by_id(id);
 }

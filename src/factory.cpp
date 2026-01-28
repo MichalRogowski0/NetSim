@@ -78,25 +78,19 @@ void Factory::add_worker(Worker &&worker) {
 
 void Factory::remove_worker(ElementID id) {
     auto it = worker_collection_.find_by_id(id);
-    if (it == worker_collection_.end()) return; // worker not found
+    if (it == worker_collection_.end()) return;
 
-    Worker* node = &(*it);
+    IPackageReceiver* receiver_ptr = dynamic_cast<IPackageReceiver*>(&(*it));
 
-    // Remove this worker from all other workers' preferences
-    for (auto& worker : worker_collection_) {
-        if (&worker != node) {
-            worker.receiver_preferences_.remove_receiver(node);
-        }
-    }
-
-    // Remove this worker from all ramps' preferences
     for (auto& ramp : ramp_collection_) {
-        ramp.receiver_preferences_.remove_receiver(node);
+        ramp.receiver_preferences_.remove_receiver(receiver_ptr);
     }
 
-    // Finally remove the worker from the collection
-    worker_collection_.remove_by_id(id);
+    for (auto& worker : worker_collection_) {
+        worker.receiver_preferences_.remove_receiver(receiver_ptr);
+    }
 
+    worker_collection_.remove_by_id(id);
 }
 
 NodeCollection<Worker>::iterator Factory::find_worker_by_id(ElementID id) {
@@ -120,14 +114,19 @@ void Factory::add_storehouse(Storehouse &&storehouse) {
 }
 
 void Factory::remove_storehouse(ElementID id) {
-       Storehouse* node = &(*storehouse_collection_.find_by_id(id));
-    std::for_each(worker_collection_.begin(), worker_collection_.end(), [&node](Worker& ramp) {
-        ramp.receiver_preferences_.remove_receiver(node);
-    });
+    auto it = storehouse_collection_.find_by_id(id);
+    if (it == storehouse_collection_.end()) return;
 
-    std::for_each(worker_collection_.begin(), worker_collection_.end(), [&node](Worker& worker) {
-        worker.receiver_preferences_.remove_receiver(node);
-    });
+    IPackageReceiver* receiver_ptr = dynamic_cast<IPackageReceiver*>(&(*it));
+
+    for (auto& ramp : ramp_collection_) {
+        ramp.receiver_preferences_.remove_receiver(receiver_ptr);
+    }
+
+    for (auto& worker : worker_collection_) {
+        worker.receiver_preferences_.remove_receiver(receiver_ptr);
+    }
+
     storehouse_collection_.remove_by_id(id);
 }
 
@@ -284,7 +283,6 @@ Factory load_factory_structure(std::istream &is) {
 
         switch (element_type) {
             case RAMP: {
-                // LOADING_RAMP id=<ramp-id> delivery-interval=<delivery-interval>
                 ElementID id = std::stoi(parameters.at("id"));
                 TimeOffset di = std::stoi(parameters.at("delivery-interval"));
 
@@ -292,7 +290,6 @@ Factory load_factory_structure(std::istream &is) {
             }
             break;
             case WORKER: {
-                // WORKER id=<worker-id> processing-time=<processing-time> queue-type=<queue-type>
                 ElementID id = std::stoi(parameters.at("id"));
                 TimeOffset pd = std::stoi(parameters.at("processing-time"));
                 std::string qt = parameters.at("queue-type");
@@ -302,14 +299,12 @@ Factory load_factory_structure(std::istream &is) {
             }
             break;
             case STOREHOUSE: {
-                // STOREHOUSE id=<storehouse-id>
                 ElementID id = std::stoi(parameters.at("id"));
                 std::unique_ptr<PackageQueue> d = std::make_unique<PackageQueue>(str_to_qt["FIFO"]);
                 factory.add_storehouse(std::move(Storehouse(id, std::move(d))));
             }
             break;
             case LINK: {
-                // LINK src=<node-type>-<node-id> dest=<node-type>-<node-id>
                 std::string src = parameters.at("src");
                 std::string dest = parameters.at("dest");
 
@@ -392,30 +387,30 @@ void save_factory_structure(const Factory &factory, std::ostream &os) {
 bool Factory::has_reachable_storehouse(const PackageSender* sender,
                                        std::map<const PackageSender*, NodeColor>& node_colors) const {
     if (node_colors[sender] == NodeColor::VERIFIED) return true;
-    if (node_colors[sender] == NodeColor::VISITED) return false; // cycle
-
-    const auto& prefs = sender->receiver_preferences_.get_preferences();
-    if (prefs.empty()) return false; // missing link → inconsistent
+    if (node_colors[sender] == NodeColor::VISITED) return false; // Wykryto cykl lub ślepą uliczkę
 
     node_colors[sender] = NodeColor::VISITED;
+
+    const auto& prefs = sender->receiver_preferences_.get_preferences();
+    
+
+    if (prefs.empty()) return false;
 
     for (const auto& [receiver, _] : prefs) {
         if (receiver->get_receiver_type() == ReceiverType::REC_STOREHOUSE) {
             node_colors[sender] = NodeColor::VERIFIED;
             return true;
         } else if (receiver->get_receiver_type() == ReceiverType::REC_WORKER) {
-            const Worker* w = dynamic_cast<const Worker*>(receiver);
-            const PackageSender* sendrecv_ptr = dynamic_cast<const PackageSender*>(w);
-            if (!sendrecv_ptr) continue;
-
-            if (has_reachable_storehouse(sendrecv_ptr, node_colors)) {
+ 
+            const PackageSender* next_sender = dynamic_cast<const PackageSender*>(receiver);
+            if (next_sender && has_reachable_storehouse(next_sender, node_colors)) {
                 node_colors[sender] = NodeColor::VERIFIED;
                 return true;
             }
         }
     }
 
-    return false; // no path found
+    return false;
 }
 
 bool Factory::is_consistent() const {
@@ -426,6 +421,10 @@ bool Factory::is_consistent() const {
 
     for (const auto& ramp : ramp_collection_) {
         if (!has_reachable_storehouse(&ramp, node_colors)) return false;
+    }
+    
+    for (const auto& worker : worker_collection_) {
+        if (!has_reachable_storehouse(&worker, node_colors)) return false;
     }
 
     return true;
